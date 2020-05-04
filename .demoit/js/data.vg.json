@@ -1,98 +1,163 @@
 {
-    "$schema": "https://vega.github.io/schema/vega/v4.0.json",
+    "$schema": "https://vega.github.io/schema/vega/v5.11.json",
     "width": 500,
     "height": 500,
     "padding": 5,
+
+    "_test": 20,
   
     "data": [
       {
-        "name": "table",
-        "values": [
-          {"category": "A", "amount": 33},
-          {"category": "B", "amount": 40},
-          {"category": "C", "amount": 43},
-          {"category": "D", "amount": 91},
-          {"category": "E", "amount": 81},
-          {"category": "F", "amount": 53},
-          {"category": "G", "amount": 19},
-          {"category": "H", "amount": 87}
+        "name": "regions",
+        "values":
+        [
+          {"name":"vtr", "width":350, "height":150, "x":275, "y":270, "count": 2},
+          {"name":"ohio", "width":350, "height":150, "x":50, "y":50, "count": 2},
+          {"name":"seoul", "width":350, "height":150, "x":500, "y":50, "count": 1}
+        ],
+
+        "transform": [
+          {"type":"formula", "as":"text_x","expr":"datum.x + datum.width/2"}
+        ]
+      }, 
+      {
+        "name": "mongo-status",
+        "values":	
+        [
+          {
+            "_id": 0,
+            "name": "mongo1.ww.project.vtr.internal:27017",
+            "syncSourceId": 3,
+            "syncSourceHost": "mongo2.ww.project.vtr.internal:27017"
+          },
+          {
+            "_id": 1,
+            "name": "mongo1.ww.project.ohio.cloud:27017",
+            "syncSourceId": 2,
+            "syncSourceHost": "mongo2.ww.project.vtr.internal:27017"
+          },
+          {
+            "_id": 2,
+            "name": "mongo1.ww.project.seoul.cloud:27017",
+            "syncSourceId": -1,
+            "syncSourceHost": ""
+          },
+          {
+            "_id": 3,
+            "name": "mongo2.ww.project.vtr.internal:27017",
+            "syncSourceId": 1,
+            "syncSourceHost": ""
+          },
+          {
+            "_id": 4,
+            "name": "mongo2.ww.project.ohio.cloud:27017",
+            "syncSourceId": 3,
+            "syncSourceHost": "mongo2.ww.project.vtr.internal:27017"
+          }
         ],
         "transform": [
-          {"type": "bin", "field": "amount", "extent": [0, 100], "maxbins": 5}
-        ]
-      }
+          {"type": "formula", "as":"name_parts", "expr": "split(split(datum.name,':')[0],'.')"},
+          {"type": "formula", "as":"node_name", "expr": "datum.name_parts[0]"},
+          {"type": "formula", "as":"node_region", "expr": "datum.name_parts[3]"},
+          {"type": "formula", "as":"index", "expr": "slice(datum.node_name,-1)-1"},
 
-    ],
+          {"type": "lookup", "from": "regions", "key": "name", "fields": ["node_region"], "as":["region"]},
+          
+          {"type": "formula", "as": "x", "expr": "datum.region.x + 50 + datum.index * 150"},
+          {"type": "formula", "as": "width", "expr": "100"},
+          {"type": "formula", "as": "y", "expr": "datum.region.y + 50"},
+          {"type": "formula", "as": "height", "expr": "50"},
 
-  
-    "signals": [
-      {
-        "name": "tooltip",
-        "value": {},
-        "on": [
-          {"events": "rect:mouseover", "update": "datum"},
-          {"events": "rect:mouseout",  "update": "{}"}
+          {"type": "formula", "as": "sourceId", "expr": "datum.syncSourceId<0 ? null : datum.syncSourceId"},
+          {
+            "type": "stratify",
+            "key": "_id",
+            "parentKey": "sourceId"
+          }
+          
         ]
-      }
-    ],
-  
-    "scales": [
-      {
-        "name": "xscale",
-        "type": "band",
-        "domain": {"data": "table", "field": "category"},
-        "range": "width"
       },
+
       {
-        "name": "yscale",
-        "domain": {"data": "table", "field": "amount"},
-        "nice": true,
-        "range": "height"
+        "name": "links",
+        "source": "mongo-status",
+        "transform": [
+          { "type": "treelinks" },
+          {"type": "formula", "as": "x1", "expr": "datum.source.x + datum.source.width/2"},
+          {"type": "formula", "as": "y1", "expr": "datum.source.y + datum.source.height/2"},
+          {"type": "formula", "as": "x2", "expr": "datum.target.x + datum.source.width/2"},
+          {"type": "formula", "as": "y2", "expr": "datum.target.y + datum.source.height/2"}
+        ]
       }
+
+    ],
+
+
+    "scales": [
     ],
   
-    "axes": [
-      { "orient": "bottom", "scale": "xscale" },
-      { "orient": "left", "scale": "yscale" }
-    ],
   
     "marks": [
+
       {
-        "type": "rect",
-        "from": {"data":"table"},
+        "type": "rule",
+        "from": {"data":"links"},
         "encode": {
           "enter": {
-            "x": {"scale": "xscale", "field": "category", "offset": 1},
-            "width": {"scale": "xscale", "band": 1, "offset": -1},
-            "y": {"scale": "yscale", "field": "amount"},
-            "y2": {"scale": "yscale", "value": 0}
-          },
-          "update": {
-            "fill": {"value": "steelblue"}
-          },
-          "hover": {
-            "fill": {"value": "red"}
+            "x": {"field": "x1"},
+            "y": {"field": "y1"},
+            "x2": {"field": "x2"},
+            "y2": {"field": "y2"},
+            "stroke": {"value": "blue"},
+            "strokeDash": {"value": [8,8]}
+          }
+        }
+      },
+
+      {
+        "type": "rect",
+        "from": {"data":"mongo-status"},
+        "encode": {
+          "enter": {
+            "x": {"field": "x"},
+            "y": {"field": "y"},
+            "width": {"field": "width"},
+            "height": {"field": "height"},
+            "stroke": {"value": "blue"}
+          }
+        }
+      },
+
+
+      {
+        "type": "rect",
+        "from": {"data":"regions"},
+        "encode": {
+          "enter": {
+            "x": {"field": "x"},
+            "y": {"field": "y"},
+            "width": {"field": "width"},
+            "height": {"field": "height"},
+            "stroke": {"value": "red"}
           }
         }
       },
       {
         "type": "text",
+        "from": {"data":"regions"},
         "encode": {
           "enter": {
-            "align": {"value": "center"},
-            "baseline": {"value": "bottom"},
-            "fill": {"value": "#333"}
-          },
-          "update": {
-            "x": {"scale": "xscale", "signal": "tooltip.category", "band": 0.5},
-            "y": {"scale": "yscale", "signal": "tooltip.amount", "offset": -2},
-            "text": {"signal": "tooltip.amount"},
-            "fillOpacity": [
-              {"test": "datum === tooltip", "value": 0},
-              {"value": 1}
-            ]
+            "text": {"field":"name"},
+            "align": {"value":"center"},
+            "baseline": {"value": "top"},
+            "x": {"field": "text_x"},
+            "y": {"field": "y"},
+            "width": {"field": "width"},
+            "height": {"field": "height"}
           }
         }
       }
+  
+
     ]
   }
