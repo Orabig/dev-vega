@@ -1,0 +1,33 @@
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@5"></script>
+
+<h1>Vega</h1>
+
+<split-view>
+    <div id="my-chart-id"></div>
+    <div title="vega output" id="output-id" style="overflow-x: auto">output</div>
+</split-view>
+
+<script>
+const output = document.getElementById('output-id');
+
+const spec = "js/data.vg.json";
+    vegaEmbed("#my-chart-id", spec)
+    // result.view provides access to the Vega View API
+    .then(result => {
+        console.log(result);
+        var cache = [];
+        output.innerHTML='<pre style="text-align: left;font-size:0.8em">'
+            + JSON.stringify(result.vgSpec.data, (key, value) => {
+                if (typeof value === 'object' && value !== null) {
+                    // Duplicate reference found, discard key
+                    if (cache.includes(value)) return;
+
+                    // Store value in our collection
+                    cache.push(value);
+                }
+                return value;
+            }, 2)
+        })                                
+    .catch(console.warn);
+</script>
