@@ -15,19 +15,6 @@
 </split-view>
 
 <script>
-var cache = [];
-// This function is useful for JSON.stringify
-function dedup( key, value ) {
-    if (typeof value === 'object' && value !== null) {
-        // Duplicate reference found, discard key
-        if (cache.includes(value)) return;
-
-        // Store value in our collection
-        cache.push(value);
-    }
-    cache = [];
-    return value;
-}
 const output = document.getElementById('output-id');
 
 const spec = "js/data.vg.json";
@@ -35,9 +22,8 @@ const spec = "js/data.vg.json";
     // result.view provides access to the Vega View API
     .then(result => {
         console.log(result);
-        var cache = [];
         output.innerHTML='<pre style="text-align: left;font-size:0.8em">'
-            + JSON.stringify(result.vgSpec.data, dedup, 2)
+            + JSON.stringify(result.vgSpec.data, null, 4)
         })                                
     .catch(console.warn);
 </script>
