@@ -1,11 +1,17 @@
 <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
 <script src="https://cdn.jsdelivr.net/npm/vega-embed@5"></script>
 
-<h1>Vega</h1>
+<h1>Vega : dynamic test of transform</h1>
 
 <split-view>
-    <div id="my-chart-id"></div>
-    <div title="vega output" id="output-id" style="overflow-x: auto">output</div>
+    <div style="text-align: left">
+        Output of Vega SPEC .demoit/js/data.vg.json
+        <div id="my-chart-id"></div>
+    </div>
+    <div style="text-align: left; overflow-x: auto">
+        result.vgSpec.data =
+        <div title="vega output" id="output-id">...</div>
+    </div>
 </split-view>
 
 <script>
