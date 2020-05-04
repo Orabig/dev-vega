@@ -63,11 +63,13 @@
 
           {"type": "lookup", "from": "regions", "key": "name", "fields": ["node_region"], "as":["region"]},
           
-          {"type": "formula", "as": "x", "expr": "datum.region.x + 50 + datum.index * 150"},
+          {"type": "formula", "as": "x1", "expr": "datum.region.x + 50 + datum.index * 150"},
           {"type": "formula", "as": "width", "expr": "100"},
-          {"type": "formula", "as": "y", "expr": "datum.region.y + 50"},
+          {"type": "formula", "as": "y1", "expr": "datum.region.y + 50"},
           {"type": "formula", "as": "height", "expr": "50"},
-
+          {"type": "formula", "as": "x", "expr": "datum.x1 + datum.width/2"},
+          {"type": "formula", "as": "y", "expr": "datum.y1 + datum.height/2"},
+          
           {"type": "formula", "as": "sourceId", "expr": "datum.syncSourceId<0 ? null : datum.syncSourceId"},
           {
             "type": "stratify",
@@ -83,10 +85,7 @@
         "source": "mongo-status",
         "transform": [
           { "type": "treelinks" },
-          {"type": "formula", "as": "x1", "expr": "datum.source.x + datum.source.width/2"},
-          {"type": "formula", "as": "y1", "expr": "datum.source.y + datum.source.height/2"},
-          {"type": "formula", "as": "x2", "expr": "datum.target.x + datum.source.width/2"},
-          {"type": "formula", "as": "y2", "expr": "datum.target.y + datum.source.height/2"}
+          { "type": "linkpath", "shape": "curve", "orient": "horizontal" }
         ]
       }
 
@@ -100,16 +99,12 @@
     "marks": [
 
       {
-        "type": "rule",
+        "type": "path",
         "from": {"data":"links"},
         "encode": {
           "enter": {
-            "x": {"field": "x1"},
-            "y": {"field": "y1"},
-            "x2": {"field": "x2"},
-            "y2": {"field": "y2"},
-            "stroke": {"value": "blue"},
-            "strokeDash": {"value": [8,8]}
+            "path": {"field": "path"},
+            "stroke": {"value": "blue"}
           }
         }
       },
@@ -119,8 +114,8 @@
         "from": {"data":"mongo-status"},
         "encode": {
           "enter": {
-            "x": {"field": "x"},
-            "y": {"field": "y"},
+            "x": {"field": "x1"},
+            "y": {"field": "y1"},
             "width": {"field": "width"},
             "height": {"field": "height"},
             "stroke": {"value": "blue"}
