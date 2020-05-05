@@ -21,13 +21,13 @@ const spec = "js/data.vg.json";
     vegaEmbed("#my-chart-id", spec)
     // result.view provides access to the Vega View API
     .then(result => {
-        console.log(result.view._runtime.data['mongo-status'].values.value);
-        console.log(result.view._runtime.data['regions'].values.value);
+        //console.log(result.view._runtime.data['mongo-status'].values.value);
+        //console.log(result.view._runtime.data['regions'].values.value);
         console.log(result.view._runtime.data['links'].values.value);
-        console.log(result);
-        output.innerHTML='<pre style="text-align: left;font-size:0.8em">'
-            + JSON.stringify(result.vgSpec.data, null, 4)
-        })                                
+        // console.log(result);
+        /*output.innerHTML='<pre style="text-align: left;font-size:0.8em">'
+            + JSON.stringify(result.vgSpec.data, null, 4)*/
+        })
     .catch( err => {
         console.warn(err);
         output.innerHTML="<br>" + err;
