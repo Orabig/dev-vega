@@ -4,8 +4,10 @@
     "height": 500,
     "padding": 5,
 
-    "_test": 20,
-  
+    "signals": [
+      { "name":"region_padding", "value": "50", "bind":{ "element":"#my-controls", "input":"range" } }
+    ],
+
     "data": [
       {
         "name": "regions",
@@ -64,9 +66,9 @@
           {"type": "lookup", "from": "regions", "key": "name", "fields": ["node_region"], "as":["region"]},
           
           {"type": "formula", "as": "x1", "expr": "datum.region.x + 50 + datum.index * 150"},
-          {"type": "formula", "as": "width", "expr": "100"},
-          {"type": "formula", "as": "y1", "expr": "datum.region.y + 50"},
-          {"type": "formula", "as": "height", "expr": "50"},
+          {"type": "formula", "as": "width", "expr": "region_padding * 2"},
+          {"type": "formula", "as": "y1", "expr": "datum.region.y + region_padding"},
+          {"type": "formula", "as": "height", "expr": "region_padding"},
           {"type": "formula", "as": "x", "expr": "datum.x1 + datum.width/2"},
           {"type": "formula", "as": "y", "expr": "datum.y1 + datum.height/2"},
           
@@ -114,11 +116,13 @@
         "from": {"data":"mongo-status"},
         "encode": {
           "enter": {
+            "stroke": {"value": "blue"}
+          },
+          "update": {
             "x": {"field": "x1"},
             "y": {"field": "y1"},
             "width": {"field": "width"},
-            "height": {"field": "height"},
-            "stroke": {"value": "blue"}
+            "height": {"field": "height"}
           }
         }
       },
@@ -128,7 +132,7 @@
         "type": "rect",
         "from": {"data":"regions"},
         "encode": {
-          "enter": {
+          "update": {
             "x": {"field": "x"},
             "y": {"field": "y"},
             "width": {"field": "width"},
@@ -141,7 +145,7 @@
         "type": "text",
         "from": {"data":"regions"},
         "encode": {
-          "enter": {
+          "update": {
             "text": {"field":"name"},
             "align": {"value":"center"},
             "baseline": {"value": "top"},
