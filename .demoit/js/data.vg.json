@@ -69,6 +69,8 @@
           {"type": "formula", "as": "height", "expr": "50"},
           {"type": "formula", "as": "x", "expr": "datum.x1 + datum.width/2"},
           {"type": "formula", "as": "y", "expr": "datum.y1 + datum.height/2"},
+          {"type": "formula", "as": "right", "expr": "datum.x + datum.width"},
+          {"type": "formula", "as": "bottom", "expr": "datum.y + datum.height"},
           
           {"type": "formula", "as": "sourceId", "expr": "datum.syncSourceId<0 ? null : datum.syncSourceId"},
           {
@@ -87,24 +89,39 @@
           { "type": "treelinks" },
           { "type": "linkpath", "shape": "curve", "orient": "horizontal" }
         ]
+      },
+
+      {
+        "name": "smart-links",
+        "source": "links",
+        "transform": [
+          { "type":"formula", "as":"same-line", "expr": "datum.source.y==datum.target.y"}
+        ]
       }
 
     ],
 
 
     "scales": [
+      {
+      "name": "c",
+      "type": "ordinal",
+      "domain": [false, true],
+      "range": ["#880000", "#008800"]
+    }
     ],
   
   
     "marks": [
-
+      
       {
         "type": "path",
-        "from": {"data":"links"},
+        "from": {"data":"smart-links"},
         "encode": {
           "enter": {
             "path": {"field": "path"},
-            "stroke": {"value": "blue"}
+            "stroke": {"scale": "c", "field": "same-line"},
+            "strokeWidth": {"value": 5}
           }
         }
       },
