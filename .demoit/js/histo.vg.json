@@ -1,11 +1,255 @@
 {
-    "$schema": "https://vega.github.io/schema/vega/v5.11.json",
-    "width": 500,
-    "height": 500,
-    "padding": 5,
-    "data": [
-      { "name":"raw-data",
-        "values": []
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "An interactive line chart of stock prices, with returns shown relative to a selected date.",
+  "width": 650,
+  "height": 300,
+  "padding": 5,
+  "autosize": {"type": "fit", "contains": "padding"},
+
+  "signals": [
+    {
+      "description": "------- Ce signal est émis par la souris, et renvoie une date -----",
+      "name": "sig_mouseDate",
+      "init": "time('Jan 1 2020')",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "invert('scale_x', clamp(x(), 0, width))"
+        }
+      ]
+    },
+    {
+      "description": "------- Ce signal est émis par un click et mémorise la date-----",
+      "name": "sig_selectDate",
+      "on": [
+        {
+          "events": "click",
+          "update": "invert('scale_x', clamp(x(), 0, width))"
+        }
+      ]
+    },
+    {
+      "description": "------- Ce signal est émis par un click et mémorise la valeur du signal follow_event -----",
+      "name": "sig_followSelectDate",
+      "on": [
+        {
+          "events": "click",
+          "update": "sig_follow[0]"
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "input_data",
+      "values": [
+        {"date":"Oct 15 2019","X":"a"},
+        {"date":"Jan 3 2020","X":"k"},
+        {"date":"Jan 5 2020","X":"j"},
+        {"date":"Jan 10 2020","X":"i"},
+        {"date":"Jan 15 2020","X":"h"},
+        {"date":"Jan 20 2020","X":"g"},
+        {"date":"Feb 20 2020","X":"f"},
+        {"date":"Mar 20 2020","X":"e"},
+        {"date":"Mar 25 2020","X":"d"},
+        {"date":"Mar 30 2020","X":"c"},
+        {"date":"May 1 2020","X":"b"}
+      ],
+      "format": {"parse": {"date":"date"}}
+    },
+    {
+      "description": "--- this must be provided by external source for range computation ---",
+      "name": "today",
+      "values": [ {"date":"May 08 2020"} ],
+      "format": {"parse": {"date":"date"}}
+    },
+    {
+      "name": "events",
+      "source": ["input_data","today"]
+    },
+    {
+      "description": "---- Contient l'event juste avant la sélection (mouseMove) ----",
+      "name": "precede_event",
+      "source": "events",
+      "transform": [
+        { "type": "filter", "expr": "datum.date<sig_mouseDate" },
+        { "type": "extent", "field": "date", "signal": "sig_precede"},
+        { "type": "filter", "expr": "datum.date==sig_precede[1]" }
+      ]
+    },
+    {
+      "description": "---- Contient l'event juste après la sélection (mouseMove)----",
+      "name": "follow_event",
+      "source": "events",
+      "transform": [
+        { "type": "filter", "expr": "datum.date>=sig_mouseDate" },
+        { "type": "extent", "field": "date", "signal": "sig_follow"},
+        { "type": "filter", "expr": "datum.date==sig_follow[0]" }
+      ]
+    },
+    {
+      "description": "---- un object unique contenant sig_precede+sig_follow (mouseMove) ----",
+      "name": "bounded_event",
+      "source": [ "precede_event", "follow_event" ],
+      "transform": [
+        { "type": "aggregate", "fields": ["date","date"], "ops":["min","max"], "as":["from","to"]}
+      ]
+    },
+    {
+      "description": "---- Contient l'event juste avant la sélection (CLICK) ----",
+      "name": "selected",
+      "source": "events",
+      "transform": [
+        { "type": "filter", "expr": "datum.date<sig_selectDate" },
+        { "type": "extent", "field": "date", "signal": "selectedDate"},
+        { "type": "filter", "expr": "datum.date==selectedDate[1]" }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "scale_x",
+      "type": "time",
+      "domain": {"data": "events", "field": "date"},
+      "range": "width"
+    }
+  ],
+
+  
+  "axes": [
+    {"orient": "top", "scale": "scale_x", "format": "%b", "tickCount": "month"}
+  ],
+
+  "marks": [
+    {
+      "description":"-------------------- bloc temporel selectionné ------------------",
+      "type": "rect",
+      "from": {"data":"selected"},
+      "encode": {
+        "enter": {
+          "y": {"value": -5},
+          "y2": {"value": 25},
+          "fill": {"value": "#F88"},
+          "cornerRadius": {"value": 10},
+          "opacity": {"value": 0.5}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "field": "date"},
+          "x2": {"scale": "scale_x", "signal": "sig_followSelectDate"}
+        }
       }
-    ]
+    },
+    {
+      "description":"-------------------- bloc temporel survolé ------------------",
+      "type": "rect",
+      "from": {"data":"bounded_event"},
+      "encode": {
+        "enter": {
+          "y": {"value": 0},
+          "y2": {"value": 20},
+          "fill": {"value": "#aaa"},          
+          "cornerRadius": {"value": 4},
+          "opacity": {"value": 0.5}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "field": "from"},
+          "x2": {"scale": "scale_x", "field": "to"}
+        }
+      }
+    },
+    {
+      "description":"-------------------- Elements temporels (diamond) ------------------",
+      "type": "symbol",
+      "from": {"data":"events"},
+      "encode": {
+        "update": {
+          "x": {"scale": "scale_x", "field": "date"},
+          "y": {"value": 10},
+          "stroke": {"value": "black"}
+        }
+      }
+    },
+
+    {
+      "description":"-------------------- Regle des temps verticales ------------------",
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "y": {"value": -5},
+          "y2": {"value": 25},
+          "stroke": {"value": "firebrick"}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "signal": "sig_mouseDate", "offset": -2}
+        }
+      }
+    },
+    {
+      "description":"-------------------- Temps sélectionné (texte) ------------------",
+      "type": "text",
+      "encode": {
+        "enter": {
+          "y": {"value": 40},
+          "align": {"value": "center"},
+          "fill": {"value": "firebrick"}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "signal": "sig_mouseDate"},
+          "text": {"signal": "timeFormat(sig_mouseDate, '%d %b %Y')"}
+        }
+      }
+    },
+    {
+      "description": "----------- debug --------------",
+      "type": "text",
+      "from": {"data":"selected"},
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"value": 200},
+          "fontSize": {"value": 18}
+        },
+        "update": {
+          "text": {"field": "X"}
+        }
+      },
+      "transform": [{"type":"formula","as":"text","expr":"'selected='+datum.text"}]      
+    },
+
+    {
+      "description": "----------- debug --------------",
+      "type": "text",
+      "from": {"data":"follow_event"},
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"value": 70},
+          "fontSize": {"value": 12}
+        },
+        "update": {
+          "text": {"field": "X"}
+        }
+      },
+      "transform": [{"type":"formula","as":"text","expr":"'follow_event='+datum.text"}]      
+    },
+
+    {
+      "description": "----------- debug --------------",
+      "type": "text",
+      "from": {"data":"precede_event"},
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"value": 120},
+          "fontSize": {"value": 12}
+        },
+        "update": {
+          "text": {"field": "X"}
+        }
+      },
+      "transform": [{"type":"formula","as":"text","expr":"'precede_event='+datum.text"}]      
+    }
+  ]
 }
