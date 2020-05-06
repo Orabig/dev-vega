@@ -143,7 +143,7 @@
         "name": "top-links",
         "source": "smart-links",
         "transform":[
-          { "type":"filter","expr": "datum.top_line"},
+          { "type":"filter","expr": "datum.top_line && ! datum.side_to_side"},
           { "type":"formula","as":"y",
             "expr": "datum.source.y"
           },
