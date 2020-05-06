@@ -85,9 +85,8 @@
         "name": "links",
         "source": "mongo-status",
         "transform": [
-          {"type": "formula", "as": "sourceId", "expr": "datum.syncSourceId<0 ? null : datum.syncSourceId"},
-          { "type": "stratify", "key": "_id", "parentKey": "sourceId" },
-          { "type": "treelinks" }
+          { "type":"filter", "expr": "! (datum.syncSourceId<0)"},
+          { "type": "lookup", "from":"mongo-status", "fields": ["syncSourceId"], "key":"_id", "as": ["target"] }
         ]
       },
 
@@ -96,28 +95,28 @@
         "source": "links",
         "transform": [
           { "type":"formula", "as":"same_line", 
-            "expr": "datum.source.y==datum.target.y"
+            "expr": "datum.y==datum.target.y"
           },
           { "type":"formula", "as":"left_node", 
-            "expr": "datum.source.x < datum.target.x ? datum.source : datum.target"
+            "expr": "datum.x < datum.target.x ? datum : datum.target"
           },
           { "type":"formula", "as":"right_node", 
-            "expr": "datum.source.x > datum.target.x ? datum.source : datum.target"
+            "expr": "datum.x > datum.target.x ? datum : datum.target"
           },
           { "type":"formula", "as":"top_node", 
-            "expr": "datum.source.y < datum.target.y ? datum.source : datum.target"
+            "expr": "datum.y < datum.target.y ? datum : datum.target"
           },
           { "type":"formula", "as":"bottom_node", 
-            "expr": "datum.source.y > datum.target.y ? datum.source : datum.target"
+            "expr": "datum.y > datum.target.y ? datum : datum.target"
           },
           { "type":"formula", "as":"same_region", 
-            "expr": "datum.source.node_region==datum.target.node_region"
+            "expr": "datum.node_region==datum.target.node_region"
           },
           { "type":"formula", "as":"top_line", 
-            "expr": "(datum.source.node_region!='vtr') && (datum.target.node_region!='vtr')"
+            "expr": "(datum.node_region!='vtr') && (datum.target.node_region!='vtr')"
           },
           { "type":"formula", "as":"bottom_line", 
-            "expr": "(datum.source.node_region=='vtr') && (datum.target.node_region=='vtr')"
+            "expr": "(datum.node_region=='vtr') && (datum.target.node_region=='vtr')"
           },
           { "type":"formula", "as":"cross_line",
             "expr": "!datum.top_line && !datum.bottom_line"
@@ -145,13 +144,13 @@
         "transform":[
           { "type":"filter","expr": "datum.top_line && ! datum.side_to_side"},
           { "type":"formula","as":"y",
-            "expr": "datum.source.y"
+            "expr": "datum.y"
           },
           { "type":"formula","as":"up",
             "expr": "datum.y - 50"
           },
           { "type":"formula","as":"path",
-            "expr": "'M'+datum.source.cx+','+datum.y+'C'+datum.source.cx+','+datum.up+' '+datum.target.cx+','+datum.up+' '+datum.target.cx+','+datum.y"
+            "expr": "'M'+datum.cx+','+datum.y+'C'+datum.cx+','+datum.up+' '+datum.target.cx+','+datum.up+' '+datum.target.cx+','+datum.y"
           }
         ]
       },
