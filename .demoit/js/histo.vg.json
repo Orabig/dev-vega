@@ -1,0 +1,11 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.11.json",
+    "width": 500,
+    "height": 500,
+    "padding": 5,
+    "data": [
+      { "name":"raw-data",
+        "values": []
+      }
+    ]
+}

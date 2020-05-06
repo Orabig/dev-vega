@@ -7,6 +7,43 @@
     "_test": 20,
   
     "data": [
+      { "name":"raw-data",
+        "values": 
+
+      [
+        {
+          "_id": 0,
+          "name": "mongo01.ww.ft.prod.vtr.internal:27017",
+          "stateStr": "SECONDARY",
+          "syncSourceId": 2
+        },
+        {
+          "_id": 1,
+          "name": "mongo01.ww.ft.prod.ohio.aws.internal:27017",
+          "stateStr": "SECONDARY",
+          "syncSourceId": 3
+        },
+        {
+          "_id": 2,
+          "name": "mongo01.ww.ft.prod.seoul.aws.internal:27017",
+          "stateStr": "SECONDARY",
+          "syncSourceId": 4
+        },
+        {
+          "_id": 3,
+          "name": "mongo02.ww.ft.prod.vtr.internal:27017",
+          "stateStr": "PRIMARY",
+          "syncSourceId": -1
+        },
+        {
+          "_id": 4,
+          "name": "mongo02.ww.ft.prod.ohio.aws.internal:27017",
+          "stateStr": "SECONDARY",
+          "syncSourceId": 1
+        }
+      ]
+
+      },
       {
         "name": "regions",
         "values":
@@ -23,45 +60,12 @@
       }, 
       {
         "name": "mongo-status",
-        "values":	
-        [
-          {
-            "_id": 0,
-            "name": "mongo1.ww.project.vtr.internal:27017",
-            "syncSourceId": 1,
-            "syncSourceHost": "mongo2.ww.project.vtr.internal:27017"
-          },
-          {
-            "_id": 1,
-            "name": "mongo1.ww.project.ohio.cloud:27017",
-            "syncSourceId": 2,
-            "syncSourceHost": "mongo2.ww.project.vtr.internal:27017"
-          },
-          {
-            "_id": 2,
-            "name": "mongo1.ww.project.seoul.cloud:27017",
-            "syncSourceId": -1,
-            "state": "PRIMARY",
-            "syncSourceHost": ""
-          },
-          {
-            "_id": 3,
-            "name": "mongo2.ww.project.vtr.internal:27017",
-            "syncSourceId": 2,
-            "syncSourceHost": ""
-          },
-          {
-            "_id": 4,
-            "name": "mongo2.ww.project.ohio.cloud:27017",
-            "syncSourceId": 3,
-            "syncSourceHost": "mongo2.ww.project.vtr.internal:27017"
-          }
-        ],
+        "source":	"raw-data",
         "transform": [
           {"type": "formula", "as":"id", "expr": "'id:'+datum._id"},
           {"type": "formula", "as":"name_parts", "expr": "split(split(datum.name,':')[0],'.')"},
           {"type": "formula", "as":"node_name", "expr": "datum.name_parts[0]"},
-          {"type": "formula", "as":"node_region", "expr": "datum.name_parts[3]"},
+          {"type": "formula", "as":"node_region", "expr": "datum.name_parts[4]"},
           {"type": "formula", "as":"index", "expr": "slice(datum.node_name,-1)-1"},
 
           {"type": "lookup", "from": "regions", "key": "name", "fields": ["node_region"], "as":["region"]},
@@ -75,8 +79,8 @@
           {"type": "formula", "as": "cx", "expr": "datum.x + datum.width/2"},
           {"type": "formula", "as": "cy", "expr": "datum.y + datum.height/2"},
 
-          {"type": "formula", "as": "back_color", "expr": "datum.state=='PRIMARY' ? '#f66' : '#ddd'"},
-          {"type": "formula", "as": "line_width", "expr": "datum.state=='PRIMARY' ? 4 : 2"}          
+          {"type": "formula", "as": "back_color", "expr": "datum.stateStr=='PRIMARY' ? '#f66' : '#ddd'"},
+          {"type": "formula", "as": "line_width", "expr": "datum.stateStr=='PRIMARY' ? 4 : 2"}          
                     
         ]
       },
@@ -193,11 +197,17 @@
 
     "scales": [
       {
-      "name": "c",
-      "type": "ordinal",
-      "domain": [false, true],
-      "range": ["#880000", "#008800"]
-    }
+        "name": "true_is_green",
+        "type": "ordinal",
+        "domain": [false, true],
+        "range": ["#880000", "#008800"]
+      },
+      {
+        "name": "true_is_red",
+        "type": "ordinal",
+        "domain": [true, false],
+        "range": ["#880000", "#008800"]
+      }
     ],
   
   
@@ -209,7 +219,7 @@
         "encode": {
           "enter": {
             "path": {"field": "path"},
-            "stroke": {"scale": "c", "field": "cross_line"},
+            "stroke": {"scale": "true_is_red", "field": "cross_line"},
             "strokeWidth": {"value": 5}
           }
         }

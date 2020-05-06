@@ -1,3 +1,28 @@
+
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@5"></script>
+
+<h1>Vega : dynamic timeline selection</h1>
+
+<div id="my-chart-id"></div>
+<div id="output-id">output</div>
+
+<script>
+const output = document.getElementById('output-id');
+
+const spec = "js/histo.vg.json";
+vegaEmbed("#my-chart-id", spec)
+    // result.view provides access to the Vega View API
+    .then(result => {
+         console.log(result);
+    })
+    .catch( err => {
+        console.warn(err);
+        output.innerHTML="<br>" + err;
+    });
+</script>
+---
+
 <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
 <script src="https://cdn.jsdelivr.net/npm/vega-embed@5"></script>
 
