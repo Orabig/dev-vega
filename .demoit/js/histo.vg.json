@@ -44,25 +44,25 @@
     {
       "name": "input_data",
       "values": [
-        {"date":"Oct 15 2019","X":"a"},
-        {"date":"Jan 3 2020","X":"k"},
-        {"date":"Jan 5 2020","X":"j"},
-        {"date":"Jan 10 2020","X":"i"},
-        {"date":"Jan 15 2020","X":"h"},
-        {"date":"Jan 20 2020","X":"g"},
-        {"date":"Feb 20 2020","X":"f"},
-        {"date":"Mar 20 2020","X":"e"},
-        {"date":"Mar 25 2020","X":"d"},
-        {"date":"Mar 30 2020","X":"c"},
-        {"date":"May 1 2020","X":"b"}
+        {"date":"20191015","X":"a"},
+        {"date":"20200103","X":"k"},
+        {"date":"20200105","X":"j"},
+        {"date":"20200110","X":"i"},
+        {"date":"20200115","X":"h"},
+        {"date":"20200330","X":"c"},
+        {"date":"20200501","X":"b"}
       ],
-      "format": {"parse": {"date":"date"}}
+      "format": {"parse": {"date":"date:'%Y%m%d'"}},
+      "transform": [
+        { "type": "formula", "as":"date", "expr": "time(datum.date)" }
+      ]
     },
     {
-      "description": "--- this must be provided by external source for range computation ---",
       "name": "today",
-      "values": [ {"date":"May 08 2020"} ],
-      "format": {"parse": {"date":"date"}}
+      "values": [ { } ],
+      "transform": [
+        { "type": "formula", "as":"date", "expr": "now()" }
+      ]
     },
     {
       "name": "events",
