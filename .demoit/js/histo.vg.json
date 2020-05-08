@@ -44,13 +44,10 @@
     {
       "name": "input_data",
       "values": [
-        {"date":"20191015","X":"a"},
-        {"date":"20200103","X":"k"},
-        {"date":"20200105","X":"j"},
-        {"date":"20200110","X":"i"},
-        {"date":"20200115","X":"h"},
-        {"date":"20200330","X":"c"},
-        {"date":"20200501","X":"b"}
+        {"date":"20191015","status":[{"_id":0,"name":"nerada01.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":1,"name":"nerada01.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":4,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":5,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":4,"name":"nerada02.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":4,"stateStr":"SECONDARY"}]},
+        {"date":"20200103","status":[{"_id":0,"name":"nerada01.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":0,"stateStr":"SECONDARY"}]},
+        {"date":"20200105","status":[{"_id":0,"name":"nerada01.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":1,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":1,"stateStr":"SECONDARY"}]},
+        {"date":"20200330","status":[{"_id":0,"name":"nerada01.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":1,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.ww.ft.prod.vtr.antidot.net:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ww.ft.prod.ohio.awsantidot.internal:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.ww.ft.prod.seoul.awsantidot.internal:27017","syncSourceId":1,"stateStr":"SECONDARY"}]}
       ],
       "format": {"parse": {"date":"date:'%Y%m%d'"}},
       "transform": [
@@ -212,7 +209,7 @@
           "fontSize": {"value": 18}
         },
         "update": {
-          "text": {"field": "X"}
+          "text": {"field": "status"}
         }
       },
       "transform": [{"type":"formula","as":"text","expr":"'selected='+datum.text"}]      
@@ -229,7 +226,7 @@
           "fontSize": {"value": 12}
         },
         "update": {
-          "text": {"field": "X"}
+          "text": {"field": "status"}
         }
       },
       "transform": [{"type":"formula","as":"text","expr":"'follow_event='+datum.text"}]      
@@ -246,7 +243,7 @@
           "fontSize": {"value": 12}
         },
         "update": {
-          "text": {"field": "X"}
+          "text": {"field": "status"}
         }
       },
       "transform": [{"type":"formula","as":"text","expr":"'precede_event='+datum.text"}]      

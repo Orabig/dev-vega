@@ -1,0 +1,224 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "An interactive line chart of stock prices, with returns shown relative to a selected date.",
+  "width": 650,
+  "height": 300,
+  "padding": 5,
+
+  "signals": [
+    {
+      "description": "------- Ce signal est émis par la souris, et renvoie une date -----",
+      "name": "sig_mouseDate",
+      "init": "time('Jan 1 2020')",
+      "on": [
+        {
+          "events": "mousemove",
+          "update": "invert('scale_x', clamp(x(), 0, width))"
+        }
+      ]
+    },
+    {
+      "description": "------- Ce signal est émis par un click et mémorise la date-----",
+      "name": "sig_clickDate",
+      "on": [
+        {
+          "events": "click",
+          "update": "invert('scale_x', clamp(x(), 0, width))"
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "input_data",
+      "values": [
+        {"log_date":"20191015","label":"A","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":4,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":5,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":4,"stateStr":"SECONDARY"}]},
+        {"log_date":"20200103","label":"B","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"}]},
+        {"log_date":"20200105","label":"C","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"}]},
+        {"log_date":"20200330","label":"D","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"}]}
+      ],
+      "format": {"parse": {"log_date":"date:'%Y%m%d'"}},
+      "transform": [
+        { "type": "formula", "as":"date", "expr": "time(datum.log_date)" }
+      ]
+    },
+    {
+      "name": "today",
+      "values": [ {"label":"now"} ],
+      "transform": [
+        { "type": "formula", "as":"date", "expr": "now()" }
+      ]
+    },
+    {
+      "name": "milestones",
+      "source": ["input_data","today"]
+    },
+    {
+      "description": "---- Contient le milestone juste avant la sélection (mouseMove) ----",
+      "name": "first_before",
+      "source": "milestones",
+      "transform": [
+        { "type": "filter", "expr": "datum.date<sig_mouseDate" },
+        { "type": "extent", "field": "date", "signal": "sig_before_range"},
+        { "type": "filter", "expr": "datum.date==sig_before_range[1]" }
+      ]
+    },
+    {
+      "description": "---- Contient le milestone juste après la sélection (mouseMove)----",
+      "name": "first_after",
+      "source": "milestones",
+      "transform": [
+        { "type": "filter", "expr": "datum.date>=sig_mouseDate" },
+        { "type": "extent", "field": "date", "signal": "sig_after_range"},
+        { "type": "filter", "expr": "datum.date==sig_after_range[0]" }
+      ]
+    },
+    {
+      "description": "---- un object unique contenant sig_before_range+sig_after_range (mouseMove) ----",
+      "name": "mouse_date_bounds",
+      "source": [ "first_before", "first_after" ],
+      "transform": [
+        { "type": "aggregate", "fields": ["date","date"], "ops":["min","max"], "as":["from","to"]}
+      ]
+    },
+    {
+      "description": "---- Contient l'event juste avant la sélection (CLICK) ----",
+      "name": "selected_milestone",
+      "source": "milestones",
+      "transform": [
+        { "type": "filter", "expr": "datum.date<sig_clickDate" },
+        { "type": "extent", "field": "date", "signal": "sig_before_click"},
+        { "type": "filter", "expr": "datum.date==sig_before_click[1]" }
+      ]
+    },
+    {
+      "description": "---- Contient l'event juste apres la sélection (CLICK) ----",
+      "name": "first_after_selected_milestone",
+      "source": "milestones",
+      "transform": [
+        { "type": "filter", "expr": "datum.date>=sig_clickDate" },
+        { "type": "extent", "field": "date", "signal": "sig_after_click"},
+        { "type": "filter", "expr": "datum.date==sig_after_click[0]" }
+      ]
+    },
+    {
+      "name": "click_date_bounds",
+      "source": [ "selected_milestone", "first_after_selected_milestone" ],
+      "transform": [
+        { "type": "aggregate", "fields": ["date","date"], "ops":["min","max"], "as":["from","to"]}
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "scale_x",
+      "type": "time",
+      "domain": {"data": "milestones", "field": "date"},
+      "range": "width"
+    }
+  ],
+
+  
+  "axes": [
+    {"orient": "top", "scale": "scale_x", "format": "%b", "tickCount": "month"}
+  ],
+
+  "marks": [
+    {
+      "description":"-------------------- bloc temporel selectionné ------------------",
+      "type": "rect",
+      "from": {"data":"click_date_bounds"},
+      "encode": {
+        "enter": {
+          "y": {"value": -5},
+          "y2": {"value": 25},
+          "fill": {"value": "#F88"},
+          "cornerRadius": {"value": 10},
+          "opacity": {"value": 0.5}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "field": "from"},
+          "x2": {"scale": "scale_x", "field": "to"}
+        }
+      }
+    },
+    {
+      "description":"-------------------- bloc temporel survolé ------------------",
+      "type": "rect",
+      "from": {"data":"mouse_date_bounds"},
+      "encode": {
+        "enter": {
+          "y": {"value": 0},
+          "y2": {"value": 20},
+          "fill": {"value": "#aaa"},          
+          "cornerRadius": {"value": 4},
+          "opacity": {"value": 0.5}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "field": "from"},
+          "x2": {"scale": "scale_x", "field": "to"}
+        }
+      }
+    },
+    {
+      "description":"-------------------- Elements temporels (diamond) ------------------",
+      "type": "symbol",
+      "from": {"data":"milestones"},
+      "encode": {
+        "update": {
+          "x": {"scale": "scale_x", "field": "date"},
+          "y": {"value": 10},
+          "stroke": {"value": "black"}
+        }
+      }
+    },
+
+    {
+      "description":"-------------------- Regle des temps verticales ------------------",
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "y": {"value": -5},
+          "y2": {"value": 25},
+          "stroke": {"value": "firebrick"}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "signal": "sig_mouseDate", "offset": -2}
+        }
+      }
+    },
+    {
+      "description":"-------------------- Temps sélectionné (texte) ------------------",
+      "type": "text",
+      "encode": {
+        "enter": {
+          "y": {"value": 40},
+          "align": {"value": "center"},
+          "fill": {"value": "firebrick"}
+        },
+        "update": {
+          "x": {"scale": "scale_x", "signal": "sig_mouseDate"},
+          "text": {"signal": "timeFormat(sig_mouseDate, '%d %b %Y')"}
+        }
+      }
+    },
+    {
+      "description": "----------- debug --------------",
+      "type": "text",
+      "from": {"data":"selected_milestone"},
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"value": 200},
+          "fontSize": {"value": 18}
+        },
+        "update": {
+          "text": {"field": "label"}
+        }
+      },
+      "transform": [{"type":"formula","as":"text","expr":"'selected_milestone='+datum.text"}]      
+    }
+  ]
+}

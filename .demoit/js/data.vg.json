@@ -4,40 +4,38 @@
     "height": 500,
     "padding": 5,
 
-    "_test": 20,
-  
     "data": [
-      { "name":"raw-data",
+      { "name":"mongo_status_data",
         "values": 
 
       [
         {
           "_id": 0,
-          "name": "mongo01.ww.ft.prod.vtr.internal:27017",
+          "name": "mongo01.vtr.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 2
         },
         {
           "_id": 1,
-          "name": "mongo01.ww.ft.prod.ohio.aws.internal:27017",
+          "name": "mongo01.ohio.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 3
         },
         {
           "_id": 2,
-          "name": "mongo01.ww.ft.prod.seoul.aws.internal:27017",
+          "name": "mongo01.seoul.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 4
         },
         {
           "_id": 3,
-          "name": "mongo02.ww.ft.prod.vtr.internal:27017",
+          "name": "mongo02.vtr.domain:27017",
           "stateStr": "PRIMARY",
           "syncSourceId": -1
         },
         {
           "_id": 4,
-          "name": "mongo02.ww.ft.prod.ohio.aws.internal:27017",
+          "name": "mongo02.ohio.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 1
         }
@@ -45,12 +43,12 @@
 
       },
       {
-        "name": "regions",
+        "name": "region_block",
         "values":
         [
-          {"name":"vtr", "width":350, "height":150, "x":275, "y":270, "count": 2, "user_name":"Vitry"},
-          {"name":"ohio", "width":350, "height":150, "x":50, "y":50, "count": 2, "user_name":"Ohio"},
-          {"name":"seoul", "width":350, "height":150, "x":500, "y":50, "count": 1, "user_name":"Seoul"}
+          {"name":"vtr", "width":350, "height":150, "x":275, "y":270, "count": 2, "label":"Vitry"},
+          {"name":"ohio", "width":350, "height":150, "x":50, "y":50, "count": 2, "label":"Ohio"},
+          {"name":"seoul", "width":350, "height":150, "x":500, "y":50, "count": 1, "label":"Seoul"}
         ],
 
         "transform": [
@@ -59,18 +57,18 @@
         ]
       }, 
       {
-        "name": "mongo-status",
-        "source":	"raw-data",
+        "name": "node_block",
+        "source":	"mongo_status_data",
         "transform": [
-          {"type": "formula", "as":"id", "expr": "'id:'+datum._id"},
+          {"type": "formula", "as":"id_label", "expr": "'id:'+datum._id"},
           {"type": "formula", "as":"name_parts", "expr": "split(split(datum.name,':')[0],'.')"},
           {"type": "formula", "as":"node_name", "expr": "datum.name_parts[0]"},
-          {"type": "formula", "as":"node_region", "expr": "datum.name_parts[4]"},
-          {"type": "formula", "as":"index", "expr": "slice(datum.node_name,-1)-1"},
+          {"type": "formula", "as":"node_region", "expr": "datum.name_parts[1]"},
+          {"type": "formula", "as":"index_in_region", "expr": "slice(datum.node_name,-1)-1"},
 
-          {"type": "lookup", "from": "regions", "key": "name", "fields": ["node_region"], "as":["region"]},
+          {"type": "lookup", "from": "region_block", "key": "name", "fields": ["node_region"], "as":["region"]},
           
-          {"type": "formula", "as": "x", "expr": "datum.region.x + 40 + datum.index * 150"},
+          {"type": "formula", "as": "x", "expr": "datum.region.x + 40 + datum.index_in_region * 150"},
           {"type": "formula", "as": "width", "expr": "120"},
           {"type": "formula", "as": "y", "expr": "datum.region.y + (datum.node_region=='vtr'?30:70)"},
           {"type": "formula", "as": "height", "expr": "50"},
@@ -79,24 +77,24 @@
           {"type": "formula", "as": "cx", "expr": "datum.x + datum.width/2"},
           {"type": "formula", "as": "cy", "expr": "datum.y + datum.height/2"},
 
-          {"type": "formula", "as": "back_color", "expr": "datum.stateStr=='PRIMARY' ? '#f66' : '#ddd'"},
+          {"type": "formula", "as": "back_color", "expr": "datum.stateStr=='PRIMARY' ? '#DE801F' : '#ddd'"},
           {"type": "formula", "as": "line_width", "expr": "datum.stateStr=='PRIMARY' ? 4 : 2"}          
                     
         ]
       },
 
       {
-        "name": "links",
-        "source": "mongo-status",
+        "name": "sync_links",
+        "source": "node_block",
         "transform": [
           { "type":"filter", "expr": "! (datum.syncSourceId<0)"},
-          { "type": "lookup", "from":"mongo-status", "fields": ["syncSourceId"], "key":"_id", "as": ["target"] }
+          { "type": "lookup", "from":"node_block", "fields": ["syncSourceId"], "key":"_id", "as": ["target"] }
         ]
       },
 
       {
         "name": "smart-links",
-        "source": "links",
+        "source": "sync_links",
         "transform": [
           { "type":"formula", "as":"same_line", 
             "expr": "datum.y==datum.target.y"
@@ -126,7 +124,7 @@
             "expr": "!datum.top_line && !datum.bottom_line"
           },
           { "type":"formula", "as":"side_to_side", 
-            "expr": "datum.same_line && ( datum.same_region && datum.left_node.index == datum.right_node.index -1 )"
+            "expr": "datum.same_line && ( datum.same_region && datum.left_node.index_in_region == datum.right_node.index_in_region -1 )"
           }
         ]
       },
@@ -227,14 +225,14 @@
 
       {
         "type": "rect",
-        "from": {"data":"mongo-status"},
+        "from": {"data":"node_block"},
         "encode": {
           "enter": {
             "x": {"field": "x"},
             "y": {"field": "y"},
             "width": {"field": "width"},
             "height": {"field": "height"},
-            "stroke": {"value": "blue"},
+            "stroke": {"value": "#1F7DDE"},
             "cornerRadius": {"value": 10},
             "strokeWidth": {"field": "line_width"},
             "fill": {"field": "back_color"}
@@ -243,7 +241,7 @@
       },
       {
         "type": "text",
-        "from": {"data":"mongo-status"},
+        "from": {"data":"node_block"},
         "encode": {
           "enter": {
             "text": {"field":"node_name"},
@@ -256,10 +254,10 @@
       },
       {
         "type": "text",
-        "from": {"data":"mongo-status"},
+        "from": {"data":"node_block"},
         "encode": {
           "enter": {
-            "text": {"field":"id"},
+            "text": {"field":"id_label"},
             "align": {"value":"left"},
             "x": {"field": "x"},
             "y": {"field": "bottom"},
@@ -273,7 +271,7 @@
 
       {
         "type": "rect",
-        "from": {"data":"regions"},
+        "from": {"data":"region_block"},
         "encode": {
           "enter": {
             "x": {"field": "x"},
@@ -286,10 +284,10 @@
       },
       {
         "type": "text",
-        "from": {"data":"regions"},
+        "from": {"data":"region_block"},
         "encode": {
           "enter": {
-            "text": {"field":"user_name"},
+            "text": {"field":"label"},
             "align": {"value":"center"},
             "baseline": {"value": "top"},
             "x": {"field": "text_x"},
