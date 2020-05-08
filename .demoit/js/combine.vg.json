@@ -33,10 +33,10 @@
     {
       "name": "input_data",
       "values": [
-        {"log_date":"20191015","label":"A","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":4,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":5,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":4,"stateStr":"SECONDARY"}]},
-        {"log_date":"20200103","label":"B","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"}]},
-        {"log_date":"20200105","label":"C","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"}]},
-        {"log_date":"20200330","label":"D","status":[{"_id":0,"name":"nerada01.vtr.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"nerada01.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"nerada01.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"},{"_id":3,"name":"nerada02.vtr.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"nerada02.ohio.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"nerada02.seoul.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"}]}
+        {"log_date":"20191015","label":"A","status":[{"_id":0,"name":"mongo01.europe.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":1,"name":"mongo01.us.domain:27017","syncSourceId":4,"stateStr":"SECONDARY"},{"_id":2,"name":"mongo01.asia.domain:27017","syncSourceId":5,"stateStr":"SECONDARY"},{"_id":3,"name":"mongo02.europe.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":4,"name":"mongo02.us.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"mongo02.asia.domain:27017","syncSourceId":4,"stateStr":"SECONDARY"}]},
+        {"log_date":"20200103","label":"B","status":[{"_id":0,"name":"mongo01.europe.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"mongo01.us.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"},{"_id":2,"name":"mongo01.asia.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":3,"name":"mongo02.europe.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"mongo02.us.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"mongo02.asia.domain:27017","syncSourceId":0,"stateStr":"SECONDARY"}]},
+        {"log_date":"20200205","label":"C","status":[{"_id":0,"name":"mongo01.europe.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"mongo01.us.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"mongo01.asia.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"},{"_id":3,"name":"mongo02.europe.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"mongo02.us.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"mongo02.asia.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"}]},
+        {"log_date":"20200330","label":"D","status":[{"_id":0,"name":"mongo01.europe.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":1,"name":"mongo01.us.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":2,"name":"mongo01.asia.domain:27017","syncSourceId":4,"stateStr":"SECONDARY"},{"_id":3,"name":"mongo02.europe.domain:27017","syncSourceId":-1,"stateStr":"PRIMARY"},{"_id":4,"name":"mongo02.us.domain:27017","syncSourceId":3,"stateStr":"SECONDARY"},{"_id":5,"name":"mongo02.asia.domain:27017","syncSourceId":1,"stateStr":"SECONDARY"}]}
       ],
       "format": {"parse": {"log_date":"date:'%Y%m%d'"}},
       "transform": [
@@ -108,6 +108,175 @@
       "transform": [
         { "type": "aggregate", "fields": ["date","date"], "ops":["min","max"], "as":["from","to"]}
       ]
+    },
+
+
+
+
+    {
+      "name": "region_block",
+      "values":
+      [
+        {"name":"europe", "width":350, "height":150, "x":275, "y":270, "count": 2, "label":"Europe"},
+        {"name":"us", "width":350, "height":150, "x":50, "y":50, "count": 2, "label":"US"},
+        {"name":"asia", "width":350, "height":150, "x":500, "y":50, "count": 1, "label":"Asia"}
+      ],
+
+      "transform": [
+        {"type":"formula", "as":"text_x","expr":"datum.x + datum.width/2"},
+        {"type":"formula", "as":"text_y","expr":"datum.y>100 ? datum.y + datum.height - 30 : datum.y + 5"}
+      ]
+    }, 
+
+
+
+
+    { "name": "selected_node",
+      "source":	"first_before",
+      "transform": [
+        {"type":"flatten", "fields": ["status"]},
+        {"type": "formula", "as":"_id", "expr": "datum.status._id"},
+        {"type": "formula", "as":"name", "expr": "datum.status.name"},
+        {"type": "formula", "as":"stateStr", "expr": "datum.status.stateStr"},
+        {"type": "formula", "as":"syncSourceId", "expr": "datum.status.syncSourceId"}
+      ]
+    },
+    {
+      "name": "node_block",
+      "source":	"selected_node",
+      "transform": [
+        {"type": "formula", "as":"id_label", "expr": "'id:'+datum._id"},
+        {"type": "formula", "as":"name_parts", "expr": "split(split(datum.name,':')[0],'.')"},
+        {"type": "formula", "as":"node_name", "expr": "datum.name_parts[0]"},
+        {"type": "formula", "as":"node_region", "expr": "datum.name_parts[1]"},
+        {"type": "formula", "as":"index_in_region", "expr": "slice(datum.node_name,-1)-1"},
+
+        {"type": "lookup", "from": "region_block", "key": "name", "fields": ["node_region"], "as":["region"]},
+        
+        {"type": "formula", "as": "x", "expr": "datum.region.x + 40 + datum.index_in_region * 150"},
+        {"type": "formula", "as": "width", "expr": "120"},
+        {"type": "formula", "as": "y", "expr": "datum.region.y + (datum.node_region=='europe'?30:70)"},
+        {"type": "formula", "as": "height", "expr": "50"},
+        {"type": "formula", "as": "right", "expr": "datum.x + datum.width"},
+        {"type": "formula", "as": "bottom", "expr": "datum.y + datum.height"},
+        {"type": "formula", "as": "cx", "expr": "datum.x + datum.width/2"},
+        {"type": "formula", "as": "cy", "expr": "datum.y + datum.height/2"},
+
+        {"type": "formula", "as": "back_color", "expr": "datum.stateStr=='PRIMARY' ? '#DE801F' : '#ddd'"},
+        {"type": "formula", "as": "line_width", "expr": "datum.stateStr=='PRIMARY' ? 4 : 2"}          
+                  
+      ]
+    },
+
+    {
+      "name": "sync_links",
+      "source": "node_block",
+      "transform": [
+        { "type":"filter", "expr": "! (datum.syncSourceId<0)"},
+        { "type": "lookup", "from":"node_block", "fields": ["syncSourceId"], "key":"_id", "as": ["target"] }
+      ]
+    },
+
+    {
+      "name": "smart-links",
+      "source": "sync_links",
+      "transform": [
+        { "type":"formula", "as":"same_line", 
+          "expr": "datum.y==datum.target.y"
+        },
+        { "type":"formula", "as":"left_node", 
+          "expr": "datum.x < datum.target.x ? datum : datum.target"
+        },
+        { "type":"formula", "as":"right_node", 
+          "expr": "datum.x > datum.target.x ? datum : datum.target"
+        },
+        { "type":"formula", "as":"top_node", 
+          "expr": "datum.y < datum.target.y ? datum : datum.target"
+        },
+        { "type":"formula", "as":"bottom_node", 
+          "expr": "datum.y > datum.target.y ? datum : datum.target"
+        },
+        { "type":"formula", "as":"same_region", 
+          "expr": "datum.node_region==datum.target.node_region"
+        },
+        { "type":"formula", "as":"top_line", 
+          "expr": "(datum.node_region!='europe') && (datum.target.node_region!='europe')"
+        },
+        { "type":"formula", "as":"bottom_line", 
+          "expr": "(datum.node_region=='europe') && (datum.target.node_region=='europe')"
+        },
+        { "type":"formula", "as":"cross_line",
+          "expr": "!datum.top_line && !datum.bottom_line"
+        },
+        { "type":"formula", "as":"side_to_side", 
+          "expr": "datum.same_line && ( datum.same_region && datum.left_node.index_in_region == datum.right_node.index_in_region -1 )"
+        }
+      ]
+    },
+    
+    {
+      "name": "side-to-side-links",
+      "source": "smart-links",
+      "transform":[
+        { "type":"filter","expr": "datum.side_to_side"},
+        { "type":"formula","as":"path",
+          "expr": "'M'+datum.left_node.right+','+datum.left_node.cy+'L'+datum.right_node.x+','+datum.right_node.cy"
+        }
+      ]
+    },
+    
+    {
+      "name": "top-links",
+      "source": "smart-links",
+      "transform":[
+        { "type":"filter","expr": "datum.top_line && ! datum.side_to_side"},
+        { "type":"formula","as":"deltax",
+          "expr": "abs(datum.cx-datum.target.cx)"
+        },
+        { "type":"formula","as":"y",
+          "expr": "datum.y"
+        },
+        { "type":"formula","as":"up",
+          "expr": "datum.y - datum.deltax/10"
+        },
+        { "type":"formula","as":"path",
+          "expr": "'M'+datum.cx+','+datum.y+'C'+datum.cx+','+datum.up+' '+datum.target.cx+','+datum.up+' '+datum.target.cx+','+datum.y"
+        }
+      ]
+    },
+    
+    {
+      "name": "cross-line-links",
+      "source": "smart-links",
+      "transform":[
+        { "type":"filter","expr": "datum.cross_line"},
+        { "type":"formula","as":"btm",
+          "expr": "datum.top_node.bottom + 70"
+        },
+        { "type":"formula","as":"up",
+          "expr": "datum.bottom_node.y - 70"
+        },
+        { "type":"formula","as":"p1",
+          "expr": "datum.top_node.cx+','+datum.top_node.bottom"
+        },
+        { "type":"formula","as":"p2",
+          "expr": "datum.top_node.cx+','+datum.btm"
+        },
+        { "type":"formula","as":"p3",
+          "expr": "datum.bottom_node.cx+','+datum.up"
+        },
+        { "type":"formula","as":"p4",
+          "expr": "datum.bottom_node.cx+','+datum.bottom_node.y"
+        },
+        { "type":"formula","as":"path",
+          "expr": "'M'+datum.p1+'C'+datum.p2+' '+datum.p3+' '+datum.p4"
+        }
+      ]
+    },
+
+    {
+      "name": "all-links",
+      "source": ["top-links","side-to-side-links","cross-line-links"]
     }
   ],
 
@@ -204,21 +373,90 @@
         }
       }
     },
+    
     {
-      "description": "----------- debug --------------",
-      "type": "text",
-      "from": {"data":"selected_milestone"},
+      "type": "path",
+      "from": {"data":"all-links"},
       "encode": {
         "enter": {
-          "x": {"value": 0},
-          "y": {"value": 200},
-          "fontSize": {"value": 18}
-        },
-        "update": {
-          "text": {"field": "label"}
+          "path": {"field": "path"},
+          "strokeWidth": {"value": 5}
         }
-      },
-      "transform": [{"type":"formula","as":"text","expr":"'selected_milestone='+datum.text"}]      
+      }
+    },
+
+    {
+      "type": "rect",
+      "from": {"data":"node_block"},
+      "encode": {
+        "enter": {
+          "x": {"field": "x"},
+          "y": {"field": "y"},
+          "width": {"field": "width"},
+          "height": {"field": "height"},
+          "stroke": {"value": "#1F7DDE"},
+          "cornerRadius": {"value": 10},
+          "strokeWidth": {"field": "line_width"},
+          "fill": {"field": "back_color"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data":"node_block"},
+      "encode": {
+        "enter": {
+          "text": {"field":"node_name"},
+          "align": {"value":"center"},
+          "fontSize": {"value":20},
+          "x": {"field": "cx"},
+          "y": {"field": "cy"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data":"node_block"},
+      "encode": {
+        "enter": {
+          "text": {"field":"id_label"},
+          "align": {"value":"left"},
+          "x": {"field": "x"},
+          "y": {"field": "bottom"},
+          "fontSize": {"value":15},
+          "dx": {"value": 5},
+          "dy": {"value": -5}
+        }
+      }
+    },
+
+
+    {
+      "type": "rect",
+      "from": {"data":"region_block"},
+      "encode": {
+        "enter": {
+          "x": {"field": "x"},
+          "y": {"field": "y"},
+          "width": {"field": "width"},
+          "height": {"field": "height"},
+          "stroke": {"value": "red"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data":"region_block"},
+      "encode": {
+        "enter": {
+          "text": {"field":"label"},
+          "align": {"value":"center"},
+          "baseline": {"value": "top"},
+          "x": {"field": "text_x"},
+          "y": {"field": "text_y"},
+          "fontSize": {"value":25}
+        }
+      }
     }
   ]
 }

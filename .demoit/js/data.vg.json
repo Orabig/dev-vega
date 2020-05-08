@@ -11,31 +11,31 @@
       [
         {
           "_id": 0,
-          "name": "mongo01.vtr.domain:27017",
+          "name": "mongo01.europe.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 2
         },
         {
           "_id": 1,
-          "name": "mongo01.ohio.domain:27017",
+          "name": "mongo01.us.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 3
         },
         {
           "_id": 2,
-          "name": "mongo01.seoul.domain:27017",
+          "name": "mongo01.asia.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 4
         },
         {
           "_id": 3,
-          "name": "mongo02.vtr.domain:27017",
+          "name": "mongo02.europe.domain:27017",
           "stateStr": "PRIMARY",
           "syncSourceId": -1
         },
         {
           "_id": 4,
-          "name": "mongo02.ohio.domain:27017",
+          "name": "mongo02.us.domain:27017",
           "stateStr": "SECONDARY",
           "syncSourceId": 1
         }
@@ -46,9 +46,9 @@
         "name": "region_block",
         "values":
         [
-          {"name":"vtr", "width":350, "height":150, "x":275, "y":270, "count": 2, "label":"Vitry"},
-          {"name":"ohio", "width":350, "height":150, "x":50, "y":50, "count": 2, "label":"Ohio"},
-          {"name":"seoul", "width":350, "height":150, "x":500, "y":50, "count": 1, "label":"Seoul"}
+          {"name":"europe", "width":350, "height":150, "x":275, "y":270, "count": 2, "label":"Europe"},
+          {"name":"us", "width":350, "height":150, "x":50, "y":50, "count": 2, "label":"US"},
+          {"name":"asia", "width":350, "height":150, "x":500, "y":50, "count": 1, "label":"Asia"}
         ],
 
         "transform": [
@@ -70,7 +70,7 @@
           
           {"type": "formula", "as": "x", "expr": "datum.region.x + 40 + datum.index_in_region * 150"},
           {"type": "formula", "as": "width", "expr": "120"},
-          {"type": "formula", "as": "y", "expr": "datum.region.y + (datum.node_region=='vtr'?30:70)"},
+          {"type": "formula", "as": "y", "expr": "datum.region.y + (datum.node_region=='europe'?30:70)"},
           {"type": "formula", "as": "height", "expr": "50"},
           {"type": "formula", "as": "right", "expr": "datum.x + datum.width"},
           {"type": "formula", "as": "bottom", "expr": "datum.y + datum.height"},
@@ -115,10 +115,10 @@
             "expr": "datum.node_region==datum.target.node_region"
           },
           { "type":"formula", "as":"top_line", 
-            "expr": "(datum.node_region!='vtr') && (datum.target.node_region!='vtr')"
+            "expr": "(datum.node_region!='europe') && (datum.target.node_region!='europe')"
           },
           { "type":"formula", "as":"bottom_line", 
-            "expr": "(datum.node_region=='vtr') && (datum.target.node_region=='vtr')"
+            "expr": "(datum.node_region=='europe') && (datum.target.node_region=='europe')"
           },
           { "type":"formula", "as":"cross_line",
             "expr": "!datum.top_line && !datum.bottom_line"
