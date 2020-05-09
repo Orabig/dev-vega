@@ -9,7 +9,7 @@
     {
       "description": "------- Ce signal est émis par la souris, et renvoie une date -----",
       "name": "sig_mouseDate",
-      "init": "time('Jan 1 2020')",
+      "init": "now()",
       "on": [
         {
           "events": "mousemove",
@@ -369,7 +369,7 @@
         },
         "update": {
           "x": {"scale": "scale_x", "signal": "sig_mouseDate"},
-          "text": {"signal": "timeFormat(sig_mouseDate, '%d %b %Y')"}
+          "text": {"signal": "timeFormat(sig_mouseDate, '%d %b %Y %H:%M')"}
         }
       }
     },
